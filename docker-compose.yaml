@@ -1,0 +1,28 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  architect-agent:
+    build:.
+    container_name: master-architect-app
+    depends_on:
+      - redis-cache
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REDIS_URL=redis://redis-cache:6379/0
+      - PRICE_ALERT_THRESHOLD_PERCENT=15
+    volumes:
+      -./src:/app/src
+    command: python -m src.main
+
+  redis-cache:
+    image: redis:7.2-alpine
+    container_name: master-architect-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+volumes:
+  redis_data:
